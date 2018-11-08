@@ -6,7 +6,7 @@ bool primeCheck(number_t n) {
 			return false;
 
 	return true;
-}typedef unsigned long number_t;
+}
 
 void primeFind(std::set<number_t>* prime_set, number_t a, number_t b) {
 	for(number_t i = a; i <= b; ++i)
