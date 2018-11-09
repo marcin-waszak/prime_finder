@@ -1,12 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "single_thread.h"
-
-void primePrint(const std::set<number_t>& prime_set) {
-	for (auto &number : prime_set)
-		printf("%lu\n", number);
-}
+#include "Prime.h"
 
 int main(int argc, char** argv) {
 	if (argc < 3)
@@ -15,10 +10,10 @@ int main(int argc, char** argv) {
 	number_t a = strtoul(argv[1], nullptr, 0);
 	number_t b = strtoul(argv[2], nullptr, 0);
 
-	std::set<number_t> prime_set;
+	Prime finder;
 
-	primeFind(&prime_set, a, b);
-	primePrint(prime_set);
+	finder.Find(a, b);
+	finder.Print();
 
 	return 0;
 }
