@@ -10,9 +10,9 @@ int main(int argc, char** argv) {
 	number_t a = strtoul(argv[1], nullptr, 0);
 	number_t b = strtoul(argv[2], nullptr, 0);
 
-	Prime finder;
+	Prime finder(a, b);
 
-	finder.Find(a, b);
+	finder.Find();
 	finder.Print();
 
 	return 0;

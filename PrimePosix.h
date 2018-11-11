@@ -4,26 +4,19 @@
 #include "Prime.h"
 
 #include <pthread.h>
+#include <atomic>
 
 #define NUM_THREADS 4
 
 class PrimePosix : public Prime {
-	PrimePosix();
-	void Find(number_t a, number_t b) override;
+	PrimePosix(number_t a, number_t b);
+	void Find() override;
 
 private:
-	void SafeInsert(number_t n);
-	static void* Worker(void* context);
+	static void* Worker(void* instance);
 
 	pthread_mutex_t mutex_;
+	std::atomic_ullong current_;
 };
-
-
-typedef struct {
-	PrimePosix* instance;
-	number_t a;
-	number_t b;
-} data_t;
-
 
 #endif //PRIME_FINDER_PRIMEPOSIX_H

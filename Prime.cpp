@@ -3,7 +3,8 @@
 #include <cmath>
 #include <cstdio>
 
-Prime::Prime() {
+Prime::Prime(number_t a, number_t b)
+		: border_a_(a), border_b_(b) {
 	primes_list.clear();
 }
 
@@ -20,8 +21,8 @@ void Prime::Print() const {
 		printf("%lu\n", number);
 }
 
-void Prime::Find(number_t a, number_t b) {
-	for(number_t i = a; i <= b; ++i)
+void Prime::Find() {
+	for(number_t i = border_a_; i <= border_b_; ++i)
 		if (Check(i))
 			primes_list.push_back(i);
 }
