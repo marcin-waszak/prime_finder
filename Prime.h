@@ -1,19 +1,19 @@
 #ifndef PRIME_FINDER_PRIME_H
 #define PRIME_FINDER_PRIME_H
 
-#include <set>
+#include <list>
 
 typedef unsigned long number_t;
 
 class Prime {
 public:
 	Prime();
-	bool Check(number_t n);
+	static bool Check(number_t n);
 	virtual void Find(number_t a, number_t b);
-	void Print();
+	void Print() const;
 
-private:
-	std::set<number_t> prime_set_;
+protected:
+	std::list<number_t> primes_list;
 };
 
 #endif //PRIME_FINDER_PRIME_H

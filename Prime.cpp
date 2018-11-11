@@ -4,7 +4,7 @@
 #include <cstdio>
 
 Prime::Prime() {
-	prime_set_.clear();
+	primes_list.clear();
 }
 
 bool Prime::Check(number_t n) {
@@ -15,13 +15,13 @@ bool Prime::Check(number_t n) {
 	return true;
 }
 
-void Prime::Print() {
-	for (auto &number : prime_set_)
+void Prime::Print() const {
+	for (auto &number : primes_list)
 		printf("%lu\n", number);
 }
 
 void Prime::Find(number_t a, number_t b) {
 	for(number_t i = a; i <= b; ++i)
 		if (Check(i))
-			prime_set_.insert(i);
+			primes_list.push_back(i);
 }
