@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-set(SOURCE_FILES main.cpp Prime.cpp PrimePosix.cpp)
+set(SOURCE_FILES main.cpp Prime.cpp PrimePosix.cpp PrimeCpp11.cpp)
 
 add_executable(prime_finder ${SOURCE_FILES})
 

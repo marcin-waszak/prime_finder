@@ -30,7 +30,7 @@ int PrimePosix::Find() {
 
 void* PrimePosix::Worker(void* instance) {
 	PrimePosix* thiz = (PrimePosix*)instance;
-	std::list<number_t > numbers;
+	std::list<number_t> numbers;
 
 	while(1) {
 		number_t n = thiz->current_.fetch_add(1);
