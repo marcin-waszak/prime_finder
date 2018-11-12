@@ -1,8 +1,6 @@
 #ifndef PRIME_FINDER_PRIMECPP11_H
 #define PRIME_FINDER_PRIMECPP11_H
 
-
-
 #include "Prime.h"
 
 #include <thread>
