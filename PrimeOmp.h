@@ -6,8 +6,6 @@
 #include <omp.h>
 #include <atomic>
 
-#define NUM_THREADS 8
-
 class PrimeOmp : public Prime {
 public:
 	PrimeOmp(number_t a, number_t b);

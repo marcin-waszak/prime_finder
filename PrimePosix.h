@@ -6,8 +6,6 @@
 #include <pthread.h>
 #include <atomic>
 
-#define NUM_THREADS 8
-
 class PrimePosix : public Prime {
 public:
 	PrimePosix(number_t a, number_t b);

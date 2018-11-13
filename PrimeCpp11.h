@@ -7,8 +7,6 @@
 #include <mutex>
 #include <atomic>
 
-#define NUM_THREADS 8
-
 class PrimeCpp11 : public Prime {
 public:
 	PrimeCpp11(number_t a, number_t b);
