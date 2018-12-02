@@ -3,6 +3,14 @@
 *.log
 *.pdf
 *.gz
+*.bbl
+*.bcf
+*.blg
+*.lof
+*.run.xml
+*.toc
+*.out
+*.lot
 
 ### CMake ###
 CMakeCache.txt
