@@ -96,7 +96,7 @@ Plik wykonywalny \textbf{\texttt{prime\_finder}} przyjmuje jako parametry począ
 \section{Prezentacja rezultatów}
 Do testów użyto maszyny z czterordzeniowym procesorem Intel Xeon E5504. Procesor nie posiada technologii \textbf{Hyper-threading}. Oznacza, to ilość wątków logicznych widzianych przez system operacyjny odpowiada ilości fizycznych rdzeni procesora. Program został zatem skompilowany z flagą \textbf{\texttt{-DNUM\_THREADS=4}}.
 
-Rezultaty możemy przedstawić na przykładzie uruchomienia: \textbf{\texttt{prime\_finder 1 10000000}}. Poniżej znajduje się wydruk ze standardowego wyjścia:
+Rezultaty możemy przedstawić na przykładzie uruchomienia: \textbf{\texttt{prime\_finder 1 100000000}}. Poniżej znajduje się wydruk ze standardowego wyjścia:
 
 \begin{boxedverbatim}
 mwaszak@livewire:~/prime_finder$ ./prime_finder 1 100000000
@@ -115,9 +115,22 @@ OpenMP: 40.116000 s
 \end{boxedverbatim}
 
 \subsection{Analiza rezultatów}
-Jak widzimy, osiągnęliśmy współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wariantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora. Ponadto, nie ma wielkich różnic między zbadanymi metodami zrównoleglania, żadna metoda nie wyróżnia się zwiększonym narzutem czasowym, wszystkie są równie dobre. Testowanie przeprowadzane było wielokrotnie na różnych przedziałach i powyższe relacje czasowe były zawsze zachowane.
+Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wazriantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdalha \cite{c4}:
+\begin{equation} \label{eq=:1}
+S(n,p)=\frac{T(n,p)}{T(1,p)}=\frac{1}{\beta(n,1)+\frac{1-\beta(n,1)}{p}}
+\end{equation}
+gdzie,
+\begin{itemize}
+\item n – parametr opisujący wielkość zadania,
+\item p – liczba procesorów,
+\item T(n, p) – czas wykonania programu realizującego ten sam algorytm dla zadania o wielkości n na maszynie z p procesorami,
+\item $\beta(n, p)$ – udział czasu wykonania części sekwencyjnej w programie o wielkości n realizowanym na maszynie z p procesorami w całym czasie rzeczywistym (zegarowym) wykonania programu T(n, p)
+\end{itemize}
+Przyspieszenie liniowe ma miejsce gdy brak w programie części sekwencyjnej (\textit{$\beta(n, p) = 0$}). Według prawa Amdalha współczynnik przyspieszenia wynosi wtedy:
+$$ S(n, p) = p $$
+co oznacza, że rośnie on proporcjonalnie do liczby procesorów wkorzystanych do rozwiązania zadania.
 
-Ponadto, każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą. \cite{c3}
+W zaprezentowanym rozwiązaniu nie ma wielkich różnic między zbadanymi metodami zrównoleglania, żadna metoda nie wyróżnia się zwiększonym narzutem czasowym, wszystkie są równie dobre. Testowanie przeprowadzane było wielokrotnie na różnych przedziałach i powyższe relacje czasowe były zawsze zachowane.
 
 \printbibliography
 
