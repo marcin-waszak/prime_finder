@@ -37,7 +37,7 @@
  	\pagenumbering{arabic}
 
 \author{Artur Błaszczyk, Marcin Waszak, Artur Zygadło}
-\title{PORR -- sprawozdanie z projektu -- etap 1}
+\title{PORR -- sprawozdanie z projektu -- etap 1.}
 \date{2 grudnia 2018}
 \affil{Wydział Elektroniki i Technik Informacyjnych, Politechnika Warszawska}
 
@@ -114,7 +114,7 @@ OpenMP: 40.079 s
 \end{boxedverbatim}
 
 \subsection{Analiza rezultatów}
-Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wazriantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdalha \cite{c4}:
+Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wazriantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdahla \cite{c4}:
 \begin{equation}
 S(n,p)=\frac{T(n,p)}{T(1,p)}=\frac{1}{\beta(n,1)+\frac{1-\beta(n,1)}{p}}
 \end{equation}
@@ -125,7 +125,7 @@ gdzie,
 \item $T(n, p)$ – czas wykonania programu realizującego ten sam algorytm dla zadania o wielkości $n$ na maszynie z $p$ procesorami,
 \item $\beta(n, p)$ – udział czasu wykonania części sekwencyjnej w programie o wielkości $n$ realizowanym na maszynie z $p$ procesorami w całym czasie rzeczywistym (zegarowym) wykonania programu $T(n, p)$.
 \end{itemize}
-Przyspieszenie liniowe ma miejsce, gdy brak w programie części sekwencyjnej (\textit{$\beta(n, p) = 0$}). Według prawa Amdalha współczynnik przyspieszenia wynosi wtedy:
+Przyspieszenie liniowe ma miejsce, gdy brak w programie części sekwencyjnej (\textit{$\beta(n, p) = 0$}). Według prawa Amdahla współczynnik przyspieszenia wynosi wtedy:
 \begin{equation}
 S(n, p) = p
 \end{equation}
