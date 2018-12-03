@@ -23,7 +23,7 @@
 }
 
 \usepackage{pdfpages}
-
+\usepackage{amsfonts}
 %\renewcommand{\familydefault}{\sfdefault}
 \setlength\parindent{1cm}
 
@@ -35,7 +35,6 @@
 \begin{document}
     \setstretch{1.15}
  	\pagenumbering{arabic}
-    %\include{chapters/abstract}
 
 \author{Artur Błaszczyk, Artur Zygadło, Marcin Waszak}
 \title{Sprawozdanie projektu 1. z przedmiotu PORR}
@@ -46,11 +45,71 @@
 \maketitle
 
 \begin{abstract}
-Celem sprawozdania jest przedstawienie przykładowych sposobów implementacji zrównoleglonego algorytmu wyszukiwania liczb pierwszych. W dalszej częsci znajduje się prezentacja rezultatów i wnioski. 
+Celem sprawozdania jest przedstawienie przykładowych sposobów implementacji zrównoleglonego algorytmu wyszukiwania liczb pierwszych. Zaprezentowane zostaną kolejno: wersja jednowątkowa, POSIX threads, C++11 threads oraz OpenMP. W dalszej części znajduje się prezentacja rezultatów i wnioski. 
 \end{abstract}
 
-\section{Wstęp}
-Lorem ipsum...
+\section{Zadanie}
+Zadanie polega na znajdowaniu liczb pierwszych na zadanym przedziale przy użyciu wybranych mechanizmów programowania równoległego.
+
+\section{Implementacja}
+Zadanie zostało wykonane w języku C++, ponieważ wspiera on programowanie obiektowe oraz posiada on gotowe struktury danych w ramach STL. Program został napisany z myślą o kompilacji w środowisku \textbf{GNU/Linux}. Wykorzystano system budowanie \textbf{CMake}. W ranach pracy zostały rozpatrzone następujące wersje zadania:
+\begin{itemize}
+\item jednowątkowa,
+\item POSIX threads,
+\item C++11 threads,
+\item OpenMP.
+\end{itemize}
+
+Wymienione warianty zostały zaimplementowane jako oddzielne klasy. Wersja jednowątkowa stanowi klasę bazową o nazwie \textbf{\texttt{Prime}}. Po klasie tej dziedziczą klasy \textbf{\texttt{PrimePosix}}, \textbf{\texttt{PrimeCpp11}}, \textbf{\texttt{PrimeOmp}}, które implementują odpowiednio warianty POSIX threads, C++11 threads, OpenMP.
+
+Klasa bazowa \textbf{\texttt{Prime}} implementuje metody:
+\begin{itemize}
+\item statyczną \textbf{\texttt{Check()}},
+\item \textbf{\texttt{Print()}},
+\item wirtualną \textbf{\texttt{Find()}}.
+\end{itemize}
+Dwie pierwsze metody są używane przez wszystkie klasy na drodze dziedziczenia. Trzecia natomiast jest metodą wirtualną, aby mogła zostać nadpisana w klasach pochodnych.
+
+\subsection{Klasa \textbf{\texttt{Prime}}}
+Najważniejsza metoda klasy \textbf{\texttt{Prime}} to \textbf{\texttt{Check()}}. Jak wcześniej wspomniano jest ona wspólna dla wszystkich klas. Implementuje ona algorytm sprawdzania czy zadana liczba jest pierwsza czy nie. Nie jest to klasyczny algorytm sita Eratostenesa. Algorytm wykorzystuje fakt, że wszystkie liczby pierwsze większe od 5 muszą mieć postać $6k - 1$ lub $6k + 1$, gdzie $k \in \mathbb{Z}$.\cite{c1} Wykorzystanie tego spostrzeżenia zauważalnie redukuje czas obliczeń. Złożoność algorytmu to $O(n \cdot log(log(n)))$
+
+Metoda \textbf{\texttt{Print()}} drukuje w konsoli rezultat obliczeń.
+Metoda \textbf{\texttt{Find()}} sprawdza po kolei wszystkie liczby na zadanym przedziale i w przypadku znalezienia liczby pierwszej dodaje je do listy liczb pierwszych.
+
+\subsection{Klasa \textbf{\texttt{PrimePosix}}} \label{posixclass}
+Klasa ta wykorzystuje mechanizm wielowątkowości opisany w ramach standardu \textbf{POSIX}. Definicja jest zawarta w standardowym nagłówku \textbf{\texttt{pthread.h}}, natomiast flaga przekazana kompilatorowi to \textbf{\texttt{-pthread}}. Klasa dziedziczy po \textbf{\texttt{Prime}} i nadpisuje ona jej metodę \textbf{\texttt{Find()}}. Metoda ta startuje wątki nazwane w kodzie jako \textbf{\texttt{Worker()}}. Strategia zrównoleglenia algorytmu polega na systemie zadań, które wykonują wątki. Wątków (a więc i instancji \textbf{\texttt{Worker()}}) jest tyle ile zdefiniujemy w czasie kompilacji. Pojedynczym zadaniem jest sprawdzenia czy kolejna liczba jest pierwsza. Kiedy wątek skończy zadanie sprawdza pobiera wartość licznika \textbf{\texttt{current\_}} i inkrementuje go. Licznik ten informuje jaka jest bieżąca liczba, która wymaga sprawdzenia. Pobranie wartości licznika i inkrementacja jest wykonywana \textbf{atomowo}.\cite{c2} Jest to możliwe dzięki specjalnemu typowi \textbf{\texttt{std::atomic}} w języku C++. Zapewnia on atomowość wykonania tych dwóch operacji na poziomie instrukcji assemblera. Dzięki temu uniknęliśmy wykorzystania mechanizmów synchronizacji takich jak mutexy, które są bardzo drogie z punktu widzenia wydajności.
+
+Każdy wątek posiada swoją własną listę znalezionych liczb pierwszych, która zawsze jest posortowana. Listą tą jest kontener STL o typie \textbf{\texttt{std::list}}, który stanowi  standardową implementację linked-listy. Kiedy program znajdzie już wszystkie liczby pierwsze na zadanym przedziale następuje łączenie rezultatów wszystkich wątków. Łączenie rezultatów zostało wykonane metodą \textbf{\texttt{std::list::merge()}}, która wykonuje łączenie zachowując posortowanie całości (dzięki, temu, że obie listy były od samego początku już posortowane). Procedura ta ma złożoność $O(n)$, a więc jest o wiele mniej kosztowna od przeszukiwania przedziału. Podczas łączenia list zastosowano synchronizację POSIX mutexem. Jest to konieczne, aby uniknąć utracenia spójności struktury zbiorczej linked-listy. Synchronizowanie te jest wykonywane przez każdy wątek raz (na końcu programu), więc jest to mało kosztowne.
+
+\subsection{Klasa \textbf{\texttt{PrimeCpp11}}}
+Klasa ta wykorzystuje mechanizm wielowątkowości opisany w ramach standardu \textbf{C++11}. Definicja jest zawarta w standardowym nagłówku \textbf{\texttt{thread}}, natomiast flaga przekazana kompilatorowi to \textbf{\texttt{-std=c++11}}. Mechanizm przydzielania zadań i łączenie rezultatów jest analogiczne jak w przypadku klasy \textbf{\texttt{PrimePosix}} opisanej w podrozdziale \ref{posixclass}.
+
+\subsection{Klasa \textbf{\texttt{PrimeOmp}}}
+Klasa ta wykorzystuje mechanizm wielowątkowości otwartego projektu \textbf{OpenMP}. Jest to zestaw dyrektyw kompilatora. Definicja jest zawarta w standardowym nagłówku \textbf{\texttt{omp.h}}, natomiast flaga przekazana kompilatorowi to \textbf{\texttt{-fopenmp}}. Implementacja zrównoleglania odróżnia się od tej przedstawionej w dwóch poprzednich klasach. Metoda \textbf{\texttt{Find()}} nie używa tutaj statycznej metody \textbf{\texttt{Worker()}}. Zamiast tego bezpośrednio używa dyrektywę preprocesora \textbf{\texttt{pragma omp parallel}}. Mechanizm ten jest dużo szybszy w implementacji, a zatem wygodniejszy dla programisty.
+
+\subsection{Kompilacja programu}
+Przed kompilacją należy zainstalować system budowania \textbf{CMake} w wersji minimum 3.5. Następnie należy ustalić docelową ilość wątków maszyny, na której będzie uruchamiany nasz program. Parametr \textbf{\texttt{NUM\_THREADS}} nazywa ustawia się w pliku \textbf{\texttt{CMakeLists.txt}}. Następnie możemy przystąpić do kompilacji naszego programu skryptem powłoki \textbf{\texttt{build.sh}}. Wyjściowy plik wykonywalny to \textbf{\texttt{prime\_finder}}.
+
+\subsection{Uruchomienie programu}
+Plik wykonywalny \textbf{\texttt{prime\_finder}} przyjmuje jako parametry początek i koniec przedziału poszukiwań liczb pierwszych. Składnia jest następująca \textbf{\texttt{prime\_finder a b}}. Jeżeli chcemy wyszukać liczb pierwszych począwszy od 1000 aż do 10000000 należy wykonać \textbf{\texttt{prime\_finder 1000 10000000}}. Program zwróci nam ilość znalezionych liczb pierwszych i czas wykonania dla każdego z wyżej wymienionych technik zrównoleglenia.
+
+\section{Prezentacja rezultatów}
+\begin{verbatim}
+mwaszak@livewire:~/prime_finder$ ./prime_finder 1 100000000
+Single:
+Found Prime: 5761455
+Posix:
+Found Prime: 5761455
+CPP11:
+Found Prime: 5761455
+OpenMP:
+Found Prime: 5761455
+Single: 157.955000 s
+POSIX:  40.032000 s
+CPP11:  40.063000 s
+OpenMP: 40.116000 s
+\end{verbatim}
+
 
 \printbibliography
 
