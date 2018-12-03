@@ -30,6 +30,8 @@ bool Prime::Check(number_t n) {
 }
 
 void Prime::Print() const {
+// Uncomment following in order to print prime numbers
+
 //	for (auto &number : primes_list)
 //		printf("# %lu\n", number);
 	printf("Found Prime: %lu\n", found_);

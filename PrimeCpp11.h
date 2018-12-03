@@ -19,5 +19,4 @@ private:
 	std::mutex mutex_;
 };
 
-
 #endif //PRIME_FINDER_PRIMECPP11_H

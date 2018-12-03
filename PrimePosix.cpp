@@ -24,7 +24,7 @@ int PrimePosix::Find() {
 		pthread_join(threads[i], nullptr);
 
 	found_ += primes_list.size();
-	//printf("Found Prime: %lu\n", found_);
+
 	return 0;
 }
 
@@ -43,9 +43,6 @@ void* PrimePosix::Worker(void* instance) {
 	}
 
 	pthread_mutex_lock(&thiz->mutex_);
-//	for(auto &n : numbers)
-//		fprintf(stderr, "%lu\n", n);
-//	fprintf(stderr, "L:%zu\n", numbers.size());
 	thiz->primes_list.merge(numbers);
 	pthread_mutex_unlock(&thiz->mutex_);
 

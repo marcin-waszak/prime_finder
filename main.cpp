@@ -24,7 +24,6 @@ int main(int argc, char** argv) {
 	finder.Print();
 
 	fprintf(stderr, "Posix:\n");
-
 	tp_t inter = sc_t::now();
 	PrimePosix finder_posix(a, b);
 
@@ -32,7 +31,6 @@ int main(int argc, char** argv) {
 	finder_posix.Print();
 
 	fprintf(stderr, "CPP11:\n");
-
 	tp_t end1 = sc_t::now();
 	PrimeCpp11 finder_cpp11(a, b);
 
@@ -40,7 +38,6 @@ int main(int argc, char** argv) {
 	finder_cpp11.Print();
 
 	fprintf(stderr, "OpenMP:\n");
-
 	tp_t end2 = sc_t::now();
 	PrimeOmp finder_omp(a, b);
 

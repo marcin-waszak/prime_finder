@@ -19,7 +19,7 @@ int PrimeCpp11::Find() {
 		thread.join();
 
 	found_ += primes_list.size();
-	//printf("Found Prime: %lu\n", found_);
+
 	return 0;
 }
 
@@ -38,9 +38,6 @@ void PrimeCpp11::Worker(PrimeCpp11* instance) {
 	}
 
 	thiz->mutex_.lock();
-//	for(auto &n : numbers)
-//		fprintf(stderr, "%lu\n", n);
-//	fprintf(stderr, "L:%zu\n", numbers.size());
 	thiz->primes_list.merge(numbers);
 	thiz->mutex_.unlock();
 }
