@@ -31,6 +31,7 @@
 \usepackage[affil-it]{authblk}
 \usepackage{smartdiagram}
 \usepackage{metalogo}
+\usepackage{moreverb}
 
 \begin{document}
     \setstretch{1.15}
@@ -91,10 +92,14 @@ Klasa ta wykorzystuje mechanizm wielowątkowości otwartego projektu \textbf{Ope
 Przed kompilacją należy zainstalować system budowania \textbf{CMake} w wersji minimum 3.5. Następnie należy ustalić docelową ilość wątków maszyny, na której będzie uruchamiany nasz program. Parametr \textbf{\texttt{NUM\_THREADS}} nazywa ustawia się w pliku \textbf{\texttt{CMakeLists.txt}}. Następnie możemy przystąpić do kompilacji naszego programu skryptem powłoki \textbf{\texttt{build.sh}}. Wyjściowy plik wykonywalny to \textbf{\texttt{prime\_finder}}.
 
 \subsection{Uruchomienie programu}
-Plik wykonywalny \textbf{\texttt{prime\_finder}} przyjmuje jako parametry początek i koniec przedziału poszukiwań liczb pierwszych. Składnia jest następująca \textbf{\texttt{prime\_finder a b}}. Jeżeli chcemy wyszukać liczb pierwszych począwszy od 1000 aż do 10000000 należy wykonać \textbf{\texttt{prime\_finder 1000 10000000}}. Program zwróci nam ilość znalezionych liczb pierwszych i czas wykonania dla każdego z wyżej wymienionych technik zrównoleglenia.
+Plik wykonywalny \textbf{\texttt{prime\_finder}} przyjmuje jako parametry początek i koniec przedziału poszukiwań liczb pierwszych. Składnia jest następująca \textbf{\texttt{prime\_finder a b}}. Jeżeli chcemy wyszukać liczb pierwszych począwszy od 1000 do 10000000 należy wykonać \textbf{\texttt{prime\_finder 1000 10000000}}. Program zwróci nam ilość znalezionych liczb pierwszych i czas wykonania dla każdego z wyżej wymienionych technik zrównoleglenia.
 
 \section{Prezentacja rezultatów}
-\begin{verbatim}
+Do testów użyto maszyny z czterordzeniowym procesorem Intel Xeon E5504. Procesor nie posiada technologii \textbf{Hyper-threading}. Oznacza, to ilość wątków logicznych widzianych przez system operacyjny odpowiada ilości fizycznych rdzeni procesora. Program został zatem skompilowany z flagą \textbf{\texttt{-DNUM\_THREADS=4}}.
+
+Rezultaty możemy przedstawić na przykładzie uruchomienia: \textbf{\texttt{prime\_finder 1000 10000000}}. Tutaj znajduje się wydruk ze standardowego wyjścia:
+
+\begin{boxedverbatim}
 mwaszak@livewire:~/prime_finder$ ./prime_finder 1 100000000
 Single:
 Found Prime: 5761455
@@ -108,8 +113,12 @@ Single: 157.955000 s
 POSIX:  40.032000 s
 CPP11:  40.063000 s
 OpenMP: 40.116000 s
-\end{verbatim}
+\end{boxedverbatim}
 
+\subsection{Analiza rezultatów}
+Jak widzimy osiągneliśmy zrównoleglenie rzędu 3,95 dla wszystkich trzech wariantów równoległych w porównaniu wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło nam się niemal idealnie na wszystkich 4 rdzeniach procesora. Ponadto nie ma wielkich różnic między zbadanymi metodami zrównoleglania, żadna metoda wyróżnia się zwiększonym narzutem czasowym, wszystkie są równie dobre.
+
+Ponadto każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą.\cite{c3}
 
 \printbibliography
 
