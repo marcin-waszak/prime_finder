@@ -53,7 +53,7 @@ int PrimeMpi::Find() {
                     primes_list.push_back(taskPrimes[j]);
             }
         }
-
+	printf("MPI threads: %d: ", world_size); // TODO: to remove after confirimig flag in cmake works 
         found_ = primes_list.size();
     }
     delete taskPrimes;
