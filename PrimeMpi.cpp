@@ -7,15 +7,20 @@
 
 using namespace std;
 
-PrimeMpi::PrimeMpi(number_t a, number_t b)
-		:	Prime(a, b) {
+PrimeMpi::PrimeMpi(number_t a, number_t b, int* argc, char*** argv)
+		:	Prime(a, b), argc_(argc), argv_(argv) {
 
 }
 
 int PrimeMpi::Find() {
     int world_rank; /* task identifier */
     int world_size; /* number of tasks */
-    MPI_Init(NULL, NULL);
+
+		printf("\nMARCIN:\n");
+		for (int i = 0; i < *argc_; ++i)
+			printf("%d: %s\n", i, (*argv_)[i]);
+
+    MPI_Init(argc_, argv_);
 
     // find out which process are we in
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);

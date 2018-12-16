@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 
 	printf("[MPI] ");
 	tp_t end3 = sc_t::now();
-	PrimeMpi finder_mpi(a, b);
+	PrimeMpi finder_mpi(a, b, &argc, &argv);
 
 	finder_mpi.Find();
 	finder_mpi.Print();
