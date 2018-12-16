@@ -5,6 +5,7 @@
 #include "PrimePosix.h"
 #include "PrimeCpp11.h"
 #include "PrimeOmp.h"
+#include "PrimeMpi.h"
 
 typedef std::chrono::steady_clock sc_t;
 typedef sc_t::time_point tp_t;
@@ -46,18 +47,27 @@ int main(int argc, char** argv) {
 	finder_omp.Find();
 	finder_omp.Print();
 
+	printf("[MPI] ");
 	tp_t end3 = sc_t::now();
+	PrimeMpi finder_mpi(a, b);
+
+	finder_mpi.Find();
+	finder_mpi.Print();
+
+	tp_t end4 = sc_t::now();
 
 	double time_single = std::chrono::duration_cast<std::chrono::milliseconds>(inter - begin).count();
 	double time_posix = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - inter).count();
 	double time_cpp11 = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - end1).count();
 	double time_omp = std::chrono::duration_cast<std::chrono::milliseconds>(end3 - end2).count();
+	double time_mpi = std::chrono::duration_cast<std::chrono::milliseconds>(end4 - end3).count();
 
 	printf("\nTimes elapsed:\n");
 	printf("Single:\t%.3lf s\n", time_single / 1000);
 	printf("POSIX:\t%.3lf s\n", time_posix / 1000);
 	printf("C++11:\t%.3lf s\n", time_cpp11 / 1000);
 	printf("OpenMP:\t%.3lf s\n", time_omp / 1000);
+	printf("MPI:\t%.3lf s\n", time_mpi / 1000);
 
 	return 0;
 }
