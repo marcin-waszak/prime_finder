@@ -44,8 +44,8 @@ int PrimeMpi::Find() {
                 MPI_Recv(&taskPrimesNum, 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 recTaskPrimes = new int[taskPrimesNum];
                 MPI_Recv(recTaskPrimes, taskPrimesNum, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for (int j = 0; j < recvSize; j++)    	
-				    primes_list.push_back(recvPrimes[j]);
+                for (int j = 0; j < taskPrimesNum; j++)    	
+				    primes_list.push_back(recTaskPrimes[j]);
 			    delete recTaskPrimes;
             }
             else { // add primes from master
