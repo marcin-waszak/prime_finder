@@ -12,4 +12,4 @@ public:
 	int Find() override;
 };
 
-#endif //PRIME_FINDER_PRIMEOMP_H
+#endif //PRIME_FINDER_PRIMEMPI_H
