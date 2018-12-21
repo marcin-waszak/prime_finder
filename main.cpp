@@ -5,7 +5,6 @@
 #include "PrimePosix.h"
 #include "PrimeCpp11.h"
 #include "PrimeOmp.h"
-#include "PrimeMpi.h"
 
 typedef std::chrono::steady_clock sc_t;
 typedef sc_t::time_point tp_t;
@@ -49,10 +48,9 @@ int main(int argc, char** argv) {
 
 	printf("[MPI] ");
 	tp_t end3 = sc_t::now();
-	PrimeMpi finder_mpi(a, b);
-
-	finder_mpi.Find();
-	finder_mpi.Print();
+	char cmd[1024];
+	snprintf(cmd, sizeof(cmd), "mpirun -np %d ./prime_finder_mpi %d %d", NUM_THREADS, int(a), int(b));
+	system(cmd);
 
 	tp_t end4 = sc_t::now();
 
