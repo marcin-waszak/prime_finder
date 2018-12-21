@@ -16,6 +16,8 @@ int main(int argc, char** argv) {
 	number_t a = strtoul(argv[1], nullptr, 0);
 	number_t b = strtoul(argv[2], nullptr, 0);
 
+	setbuf(stdout, NULL);
+
 	printf("Threads number set to %d.\n", NUM_THREADS);
 
 	printf("[Single] ");
