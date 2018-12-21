@@ -27,6 +27,7 @@ build
 ### Binaries ##
 *.a
 prime_finder
+prime_finder_mpi
 
 ### CLion ###
 .idea
