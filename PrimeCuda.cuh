@@ -6,5 +6,5 @@
 #include <stdio.h>
 
 namespace Wrapper {
-	void wrapper(number_t llimit, number_t ulimit);
+	int wrapper(number_t llimit, number_t ulimit);
 }

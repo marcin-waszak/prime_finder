@@ -11,8 +11,8 @@ PrimeCuda::PrimeCuda(number_t a, number_t b)
 }
 
 int PrimeCuda::Find() {
-	
-  Wrapper::wrapper(border_a_, border_b_);
+
+  found_ = Wrapper::wrapper(border_a_, border_b_);
 
 	return 0;
 }

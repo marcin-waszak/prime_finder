@@ -35,7 +35,7 @@ __global__ void primes_in_range(number_t llimit, number_t ulimit, unsigned int *
 
 
 namespace Wrapper {
-	void wrapper(number_t llimit, number_t ulimit)
+	int wrapper(number_t llimit, number_t ulimit)
 	{
 
     unsigned int *result;
@@ -44,7 +44,11 @@ namespace Wrapper {
 
     primes_in_range<<<10000, 1024>>>(llimit, ulimit, result);
   	cudaDeviceSynchronize();
-    printf("Primes found: %d\n", *result);
+    // printf("Primes found: %d\n", *result);
+
+    int res = *result;
+
+    return res;
 
 	}
 }
