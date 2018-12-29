@@ -15,7 +15,7 @@ PrimeMpi::PrimeMpi(number_t a, number_t b)
 int PrimeMpi::Find() {
     int world_rank; /* task identifier */
     int world_size; /* number of tasks */
-    MPI_Init(NULL, NULL);
+    
 
     // find out which process are we in
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
@@ -25,10 +25,11 @@ int PrimeMpi::Find() {
 
     // every task will do its own portion of data
     // allocating memory for worst case where all numbers for task is prime 
-    int* taskPrimes = new int[(border_b_ - border_a_) / world_size];
+    int chunk_size = (border_b_ - border_a_) / world_size;
+    int* taskPrimes = new int[chunk_size];
     int primesNum = 0;
-    for (number_t n = border_a_ + world_rank; n <= border_b_; n = n + world_size) 
-        if (Check(n)) 
+    for (number_t n = border_a_ + world_rank * chunk_size; n <= border_b_ - ((world_size - world_rank - 1) * chunk_size); n++)      
+	  if (Check(n)) 
             taskPrimes[primesNum++] = n;
 
     // if not master -> send found primes to master (master rank is 0)
@@ -57,16 +58,16 @@ int PrimeMpi::Find() {
         }
         found_ = primes_list.size();
         Print();
-    }
-    delete taskPrimes;
 
-    MPI_Finalize();
-	return 0;
+    } 
+    delete taskPrimes;
+    return 0;
 }
 
 int main(int argc, char** argv) {
 	if (argc < 3)
 		return 1;
+	MPI_Init(NULL, NULL);
 
 	number_t a = strtoul(argv[1], nullptr, 0);
 	number_t b = strtoul(argv[2], nullptr, 0);
@@ -74,6 +75,7 @@ int main(int argc, char** argv) {
 	PrimeMpi finder_mpi(a, b);
 
 	finder_mpi.Find();
+	MPI_Finalize();
 
 	return 0;
 }
