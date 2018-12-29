@@ -21,10 +21,10 @@ __device__ bool check_prime(number_t n)
 	return true;
 }
 
-__global__ void primes_in_range(number_t llimit, number_t ulimit, unsigned int *result)
+__global__ void primes_in_range(number_t a, number_t b, int *result)
 {
-	const number_t number = llimit + (blockIdx.x * blockDim.x) + threadIdx.x;
-	if (number > ulimit)
+	const number_t number = a + (blockIdx.x * blockDim.x) + threadIdx.x;
+	if (number > b)
 	{
 		return;
 	}
@@ -34,21 +34,18 @@ __global__ void primes_in_range(number_t llimit, number_t ulimit, unsigned int *
 }
 
 
-namespace Wrapper {
-	int wrapper(number_t llimit, number_t ulimit)
+namespace CudaWrapper {
+	int cuda_wrapper(number_t a, number_t b)
 	{
 
-    unsigned int *result;
+    int *result;
   	cudaMallocManaged(&result, 4);
   	*result = 0;
 
-    primes_in_range<<<10000, 1024>>>(llimit, ulimit, result);
+    primes_in_range<<<(b-a)/1000+1, 1024>>>(a, b, result);
   	cudaDeviceSynchronize();
-    // printf("Primes found: %d\n", *result);
 
-    int res = *result;
-
-    return res;
+    return *result;
 
 	}
 }
