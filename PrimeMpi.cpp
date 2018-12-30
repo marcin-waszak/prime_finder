@@ -62,7 +62,7 @@ int PrimeMpi::Find() {
         Print();
 
     } 
-    delete taskPrimes;
+    delete[] taskPrimes;
     return 0;
 }
 
