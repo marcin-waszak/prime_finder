@@ -7,7 +7,9 @@ PrimeCuda::PrimeCuda(number_t a, number_t b)
 }
 
 int PrimeCuda::Find() {
-	found_ = CudaWrapper::cuda_wrapper(border_a_, border_b_);
+	
+	primes_list = CudaWrapper::cuda_wrapper(border_a_, border_b_);
+	found_ = primes_list.size();
 
 	return 0;
 }
