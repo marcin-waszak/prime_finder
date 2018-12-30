@@ -48,11 +48,14 @@ int main(int argc, char** argv) {
 	finder_omp.Find();
 	finder_omp.Print();
 
-	printf("[MPI] ");
+	printf("[MPI]    ");
 	tp_t end3 = sc_t::now();
+
 	char cmd[1024];
-	snprintf(cmd, sizeof(cmd), "mpirun -np %d ./prime_finder_mpi %d %d", NUM_THREADS, int(a), int(b));
-	system(cmd);
+	snprintf(cmd, sizeof(cmd), "mpirun -np %d ./prime_finder_mpi %lu %lu", NUM_THREADS, a, b);
+	int res = system(cmd);
+	if (!res)
+		return EXIT_FAILURE;
 
 	tp_t end4 = sc_t::now();
 

@@ -4,7 +4,6 @@
 #include "Prime.h"
 
 #include <mpi.h>
-#include <atomic>
 
 class PrimeMpi : public Prime {
 public:
