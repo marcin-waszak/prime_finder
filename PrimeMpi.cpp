@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 #include <mpi.h>
+#include <iostream>
 
 using namespace std;
 
@@ -16,19 +17,22 @@ int PrimeMpi::Find() {
     int world_rank; /* task identifier */
     int world_size; /* number of tasks */
     
-
-    // find out which process are we in
+    // find out which processor are we in
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     // find out how many processes are there
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    // every task will do its own portion of data
+    // every processor will do its own portion of data
     // allocating memory for worst case where all numbers for task is prime 
-    int chunk_size = (border_b_ - border_a_) / world_size;
+    int chunk_size = border_b_ / world_size;
     int* taskPrimes = new int[chunk_size];
     int primesNum = 0;
-    for (number_t n = border_a_ + world_rank * chunk_size; n <= border_b_ - ((world_size - world_rank - 1) * chunk_size); n++)      
+
+    // checking if prime
+    number_t task_a = border_a_ + world_rank * chunk_size; // start number of portion of data to check
+    number_t task_b = min(int(border_b_), int(border_a_) + (world_rank + 1) * chunk_size - 1); // end number of portion of data to check
+    for (number_t n = task_a; n <= task_b; n++)      
 	  if (Check(n)) 
             taskPrimes[primesNum++] = n;
 
