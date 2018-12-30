@@ -28,6 +28,7 @@ build
 *.a
 *.o
 prime_finder
+prime_finder_mpi
 
 ### CLion ###
 .idea

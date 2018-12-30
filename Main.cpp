@@ -17,6 +17,7 @@ int main(int argc, char** argv) {
 	number_t a = strtoul(argv[1], nullptr, 0);
 	number_t b = strtoul(argv[2], nullptr, 0);
 
+	setbuf(stdout, NULL);
 	printf("CPU threads number set to %d.\n", NUM_THREADS);
 
 	printf("[Single] ");
@@ -47,26 +48,37 @@ int main(int argc, char** argv) {
 	finder_omp.Find();
 	finder_omp.Print();
 
-	printf("[CUDA]   ");
+	printf("[MPI]    ");
 	tp_t end3 = sc_t::now();
+
+	char cmd[1024];
+	snprintf(cmd, sizeof(cmd), "mpirun -np %d ./prime_finder_mpi %u %u", NUM_THREADS, a, b);
+	int res = system(cmd);
+	if (res < 0)
+		return EXIT_FAILURE;
+
+	printf("[CUDA]   ");
+	tp_t end4 = sc_t::now();
 	PrimeCuda finder_cuda(a, b);
 
 	finder_cuda.Find();
 	finder_cuda.Print();
 
-	tp_t end4 = sc_t::now();
+	tp_t end5 = sc_t::now();
 
 	double time_single = std::chrono::duration_cast<std::chrono::milliseconds>(inter - begin).count();
 	double time_posix = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - inter).count();
 	double time_cpp11 = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - end1).count();
 	double time_omp = std::chrono::duration_cast<std::chrono::milliseconds>(end3 - end2).count();
-	double time_cuda = std::chrono::duration_cast<std::chrono::milliseconds>(end4 - end3).count();
+	double time_mpi = std::chrono::duration_cast<std::chrono::milliseconds>(end4 - end3).count();
+	double time_cuda = std::chrono::duration_cast<std::chrono::milliseconds>(end5 - end4).count();
 
 	printf("\nTimes elapsed:\n");
 	printf("Single:\t%.3lf s\n", time_single / 1000);
 	printf("POSIX:\t%.3lf s\n", time_posix / 1000);
 	printf("C++11:\t%.3lf s\n", time_cpp11 / 1000);
 	printf("OpenMP:\t%.3lf s\n", time_omp / 1000);
+	printf("MPI:\t%.3lf s\n", time_mpi / 1000);
 	printf("CUDA:\t%.3lf s\n", time_cuda / 1000);
 
 	return 0;

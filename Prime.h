@@ -16,7 +16,7 @@ protected:
 	number_t border_a_;
 	number_t border_b_;
 	std::list<number_t> primes_list;
-	number_t found_;
+	size_t found_;
 };
 
 #endif //PRIME_FINDER_PRIME_H
