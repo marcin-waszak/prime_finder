@@ -1,5 +1,5 @@
 #include "PrimeCuda.h"
-#include "PrimeCuda.cuh"
+#include "PrimeCudaWrapper.cuh"
 
 PrimeCuda::PrimeCuda(number_t a, number_t b)
 		:	Prime(a, b) {

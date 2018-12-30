@@ -26,6 +26,7 @@ build
 
 ### Binaries ##
 *.a
+*.o
 prime_finder
 
 ### CLion ###

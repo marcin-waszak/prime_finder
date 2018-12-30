@@ -1,4 +1,4 @@
-#include "PrimeCuda.cuh"
+#include "PrimeCudaWrapper.cuh"
 
 typedef unsigned long number_t;
 
