@@ -1,4 +1,6 @@
 #include "PrimeCuda.cuh"
+#include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
 
 typedef unsigned long number_t;
 
@@ -21,7 +23,7 @@ __device__ bool check_prime(number_t n)
 	return true;
 }
 
-__global__ void primes_in_range(number_t a, number_t b, int *result)
+__global__ void primes_in_range(number_t a, number_t b, bool *primes)
 {
 	const number_t number = a + (blockIdx.x * blockDim.x) + threadIdx.x;
 	if (number > b)
@@ -29,23 +31,32 @@ __global__ void primes_in_range(number_t a, number_t b, int *result)
 		return;
 	}
 
-  if (check_prime(number))
-    atomicAdd(result, 1);
+  primes[number]=check_prime(number);
+
 }
 
 
 namespace CudaWrapper {
-	int cuda_wrapper(number_t a, number_t b)
+	std::list<number_t> cuda_wrapper(number_t a, number_t b)
 	{
 
-    int *result;
-  	cudaMallocManaged(&result, 4);
-  	*result = 0;
+    thrust::host_vector<bool> primes_host(b-a+2);
+    thrust::fill(primes_host.begin(), primes_host.end(), false);
+    thrust::device_vector<bool> primes = primes_host;
+    bool* d_primes =  thrust::raw_pointer_cast(&primes[0]);
 
-    primes_in_range<<<(b-a)/1000+1, 1024>>>(a, b, result);
+    primes_in_range<<<(b-a)/1000+1, 1024>>>(a, b, d_primes);
   	cudaDeviceSynchronize();
 
-    return *result;
+    thrust::copy(primes.begin(), primes.end(), primes_host.begin());
+
+    std::list<number_t> primes_list;
+
+    for (number_t i = a; i <= b; ++i)
+      if (primes_host[i]){
+        primes_list.push_back(i);
+      }
+    return primes_list;
 
 	}
 }

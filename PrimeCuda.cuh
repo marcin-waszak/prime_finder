@@ -5,5 +5,5 @@
 #include <stdio.h>
 
 namespace CudaWrapper {
-	int cuda_wrapper(number_t llimit, number_t ulimit);
+	std::list<number_t> cuda_wrapper(number_t llimit, number_t ulimit);
 }
