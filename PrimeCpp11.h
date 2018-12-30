@@ -15,7 +15,7 @@ public:
 private:
 	static void Worker(PrimeCpp11* instance);
 
-	std::atomic_ullong current_;
+	std::atomic_uint current_;
 	std::mutex mutex_;
 };
 

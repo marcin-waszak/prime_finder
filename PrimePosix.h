@@ -14,7 +14,7 @@ public:
 private:
 	static void* Worker(void* instance);
 
-	std::atomic_ullong current_;
+	std::atomic_uint current_;
 	pthread_mutex_t mutex_;
 };
 

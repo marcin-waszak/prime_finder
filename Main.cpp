@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 	number_t a = strtoul(argv[1], nullptr, 0);
 	number_t b = strtoul(argv[2], nullptr, 0);
 
-	printf("Threads number set to %d.\n", NUM_THREADS);
+	printf("CPU threads number set to %d.\n", NUM_THREADS);
 
 	printf("[Single] ");
 	tp_t begin = sc_t::now();
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 	finder_omp.Find();
 	finder_omp.Print();
 
-	printf("[CUDA] ");
+	printf("[CUDA]   ");
 	tp_t end3 = sc_t::now();
 	PrimeCuda finder_cuda(a, b);
 

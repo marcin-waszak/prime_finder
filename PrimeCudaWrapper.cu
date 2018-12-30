@@ -1,10 +1,9 @@
 #include "PrimeCudaWrapper.cuh"
 
-typedef unsigned long number_t;
+typedef unsigned int number_t;
 
-__device__ bool check_prime(number_t n)
-{
-  if (n <= 1)
+__device__ bool check_prime(number_t n) {
+	if (n <= 1)
 		return false;
 	if (n <= 3)
 		return true;
@@ -21,31 +20,25 @@ __device__ bool check_prime(number_t n)
 	return true;
 }
 
-__global__ void primes_in_range(number_t a, number_t b, int *result)
-{
+__global__ void primes_in_range(number_t a, number_t b, number_t* result) {
 	const number_t number = a + (blockIdx.x * blockDim.x) + threadIdx.x;
 	if (number > b)
-	{
 		return;
-	}
 
-  if (check_prime(number))
-    atomicAdd(result, 1);
+	if (check_prime(number))
+		atomicAdd(result, 1);
 }
 
 
 namespace CudaWrapper {
-	int cuda_wrapper(number_t a, number_t b)
-	{
+	number_t cuda_wrapper(number_t border_a, number_t border_b) {
+		number_t* result;
+		cudaMallocManaged(&result, sizeof(number_t));
+		*result = 0;
 
-    int *result;
-  	cudaMallocManaged(&result, 4);
-  	*result = 0;
+		primes_in_range<<<(border_b - border_a)/1000+1, 1024>>>(border_a, border_b, result);
+		cudaDeviceSynchronize();
 
-    primes_in_range<<<(b-a)/1000+1, 1024>>>(a, b, result);
-  	cudaDeviceSynchronize();
-
-    return *result;
-
+		return *result;
 	}
 }

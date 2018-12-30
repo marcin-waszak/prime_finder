@@ -33,8 +33,8 @@ void Prime::Print() const {
 // Uncomment following in order to print prime numbers
 
 //	for (auto &number : primes_list)
-//		printf("# %lu\n", number);
-	printf("Primes found: %lu\n", found_);
+//		printf("# %u\n", number);
+	printf("Primes found: %u\n", found_);
 }
 
 int Prime::Find() {
