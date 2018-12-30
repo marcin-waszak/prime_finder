@@ -3,7 +3,7 @@
 
 #include <list>
 
-typedef unsigned long number_t;
+typedef unsigned int number_t;
 
 class Prime {
 public:

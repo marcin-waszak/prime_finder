@@ -2,7 +2,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 
-typedef unsigned long number_t;
+typedef unsigned int number_t;
 
 __device__ bool check_prime(number_t n)
 {

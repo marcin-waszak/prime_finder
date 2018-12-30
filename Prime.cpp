@@ -34,7 +34,7 @@ void Prime::Print() const {
 
 //	for (auto &number : primes_list)
 //		printf("# %lu\n", number);
-	printf("Primes found: %lu\n", found_);
+	printf("Primes found: %u\n", found_);
 }
 
 int Prime::Find() {
