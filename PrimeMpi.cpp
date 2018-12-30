@@ -40,10 +40,8 @@ int PrimeMpi::Find() {
     if (world_rank) {
         MPI_Send(&primesNum, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
 	MPI_Send(taskPrimes, primesNum, MPI_INT, 0, 0, MPI_COMM_WORLD);
-	MPI_Barrier(MPI_COMM_WORLD);
     }
-    else { // gather data in master (rank 0)
-        MPI_Barrier(MPI_COMM_WORLD); // wait for other task to do their job       
+    else { // gather data in master (rank 0)     
 	int taskPrimesNum;
         int* recTaskPrimes; //temp variable for primes recived from other task
         for (int i = 0; i < world_size; i++) {
