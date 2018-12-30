@@ -27,7 +27,7 @@ int PrimeMpi::Find() {
     // allocating memory for worst case where all numbers for task is prime 
     int proc_portions = world_size * world_size * world_size;
     int chunk_size = border_b_ / (world_size * proc_portions) + 1;
-    int* taskPrimes = new int[chunk_size];
+    int* taskPrimes = new int[chunk_size * proc_portions];
     int primesNum = 0;
     
     // checking if prime
@@ -37,6 +37,7 @@ int PrimeMpi::Find() {
         for (number_t n = task_a; n <= task_b; n++)      
 	    if (Check(n)) 
                taskPrimes[primesNum++] = n;
+
     }
 
     // if not master -> send found primes to master (master rank is 0)
