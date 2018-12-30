@@ -25,16 +25,19 @@ int PrimeMpi::Find() {
 
     // every processor will do its own portion of data
     // allocating memory for worst case where all numbers for task is prime 
-    int chunk_size = border_b_ / world_size;
+    int proc_portions = world_size * world_size * world_size;
+    int chunk_size = border_b_ / (world_size * proc_portions) + 1;
     int* taskPrimes = new int[chunk_size];
     int primesNum = 0;
-
+    
     // checking if prime
-    number_t task_a = border_a_ + world_rank * chunk_size; // start number of portion of data to check
-    number_t task_b = min(int(border_b_), int(border_a_) + (world_rank + 1) * chunk_size - 1); // end number of portion of data to check
-    for (number_t n = task_a; n <= task_b; n++)      
-	  if (Check(n)) 
-            taskPrimes[primesNum++] = n;
+    for (int portion_num = 0; portion_num < proc_portions; portion_num++) {
+        number_t task_a = border_a_ + (world_rank + world_size * portion_num) * chunk_size; // start number of portion of data to check
+        number_t task_b = min(int(border_b_), int(border_a_) + (world_rank + world_size * portion_num + 1) * chunk_size - 1); // end number of portion of data to check
+        for (number_t n = task_a; n <= task_b; n++)      
+	    if (Check(n)) 
+               taskPrimes[primesNum++] = n;
+    }
 
     // if not master -> send found primes to master (master rank is 0)
     if (world_rank) {
