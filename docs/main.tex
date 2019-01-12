@@ -31,21 +31,22 @@
 \usepackage{smartdiagram}
 \usepackage{metalogo}
 \usepackage{moreverb}
+\usepackage{multicol}
 
 \begin{document}
     \setstretch{1.15}
  	\pagenumbering{arabic}
 
 \author{Artur Błaszczyk, Marcin Waszak, Artur Zygadło}
-\title{PORR -- sprawozdanie z projektu -- etap 1.}
-\date{2 grudnia 2018}
+\title{PORR -- sprawozdanie z projektu}
+\date{12 stycznia 2019}
 \affil{Wydział Elektroniki i Technik Informacyjnych, Politechnika Warszawska}
 
 
 \maketitle
 
 \begin{abstract}
-Celem sprawozdania jest przedstawienie przykładowych sposobów implementacji zrównoleglonego algorytmu wyszukiwania liczb pierwszych. Zaprezentowane zostaną kolejno: wersja jednowątkowa, POSIX threads, C++11 threads oraz OpenMP. W dalszej części znajduje się prezentacja rezultatów i wnioski. 
+Celem sprawozdania jest przedstawienie przykładowych sposobów implementacji zrównoleglonego algorytmu wyszukiwania liczb pierwszych w zadanym przedziale. Zaprezentowane zostaną kolejno: wersja jednowątkowa, POSIX threads, C++11 threads oraz OpenMP, a w dalszej części także OpenMPI oraz CUDA. W ostatnim rozdziale znajduje się prezentacja rezultatów i wnioski. 
 \end{abstract}
 
 \section{Zadanie}
@@ -53,14 +54,19 @@ Zadanie polega na znajdowaniu liczb pierwszych w zadanym przedziale przy użyciu
 
 \section{Implementacja}
 Zadanie zostało wykonane w języku C++, ponieważ wspiera on programowanie obiektowe oraz posiada on gotowe struktury danych w ramach STL. Program został napisany z myślą o kompilacji w środowisku \textbf{GNU/Linux}. Wykorzystano system budowania \textbf{CMake}. W ramach pracy zostały rozpatrzone następujące wersje zadania:
+
+\begin{multicols}{2}
 \begin{itemize}
 \item jednowątkowa,
 \item POSIX threads,
 \item C++11 threads,
-\item OpenMP.
+\item OpenMP,
+\item OpenMPI,
+\item CUDA.
 \end{itemize}
+\end{multicols}
 
-Wymienione warianty zostały zaimplementowane jako oddzielne klasy. Wersja jednowątkowa stanowi klasę bazową o nazwie \textbf{\texttt{Prime}}. Po klasie tej dziedziczą klasy \textbf{\texttt{PrimePosix}}, \textbf{\texttt{PrimeCpp11}}, \textbf{\texttt{PrimeOmp}}, które implementują odpowiednio warianty POSIX threads, C++11 threads, OpenMP.
+Wymienione warianty zostały zaimplementowane jako oddzielne klasy. Wersja jednowątkowa stanowi klasę bazową o nazwie \textbf{\texttt{Prime}}. Po klasie tej dziedziczą klasy \textbf{\texttt{PrimePosix}}, \textbf{\texttt{PrimeCpp11}}, \textbf{\texttt{PrimeOmp}}, \textbf{\texttt{PrimeMpi}} oraz \textbf{\texttt{PrimeCuda}} które implementują odpowiednio warianty POSIX threads, C++11 threads, OpenMP, OpenMPI oraz CUDA.
 
 Klasa bazowa \textbf{\texttt{Prime}} implementuje metody:
 \begin{itemize}
@@ -87,19 +93,31 @@ Klasa ta wykorzystuje mechanizm wielowątkowości opisany w ramach standardu \te
 \subsection{Klasa \textbf{\texttt{PrimeOmp}}}
 Klasa ta wykorzystuje mechanizm wielowątkowości otwartego projektu \textbf{OpenMP}. Jest to zestaw dyrektyw kompilatora. Definicja jest zawarta w standardowym nagłówku \textbf{\texttt{omp.h}}, natomiast flaga przekazana kompilatorowi to \textbf{\texttt{-fopenmp}}. Implementacja zrównoleglania odróżnia się od tej przedstawionej w dwóch poprzednich klasach. Metoda \textbf{\texttt{Find()}} nie używa tutaj statycznej metody \textbf{\texttt{Worker()}}. Zamiast tego bezpośrednio używa dyrektywę preprocesora \textbf{\texttt{\#pragma omp parallel}}. Mechanizm ten jest dużo szybszy w implementacji, a zatem wygodniejszy dla programisty.
 
+\subsection{Klasa \textbf{\texttt{PrimeMpi}}}
+Tu trzeba wpisać o MPI.
+
+\subsection{Klasa \textbf{\texttt{PrimeCuda}}}
+Wersja zrealizowana w środowisku CUDA różni się nieco podejściem do zrównoleglania obliczeń. Typowa dla obliczeń na GPU jest bowiem \textbf{równoległość danych}, tj. realizacja tych samych obliczeń równocześnie na wielu niezależnych elementach danych.
+Kod tej wersji programu można podzielić na dwie części: część wykonywaną na CPU oraz na GPU. Najpierw, dane z pamięci CPU muszą zostać skopiowane do pamięci GPU. Następnie, kod działający na CPU wywołuje funkcję napisaną dla GPU, czyli tzw. \textbf{kernel}. Program działający na GPU wykonuje kod równoległy, a na zakończenie rezultaty z~pamięci GPU przekazywane są zpowrotem do CPU.
+
+Metoda \textbf{\texttt{Find()}} klasy \textbf{\texttt{PrimeCuda}} została zrealizowana następująco: wywołuje ona pomocniczą funkcję \texttt{cuda\_wrapper}, która przyjmuje końce przedziału \texttt{a} i \texttt{b} i zwraca listę znalezionych w tym przedziale liczb pierwszych. Wewnątrz funkcji tej tworzone są dwa wektory typu \texttt{bool} rozmiaru \texttt{b-a+1} (jako \texttt{host\_vector} oraz \texttt{device\_vector} z biblioteki \texttt{thrust} -- pierwszy dla CPU, a drugi dla GPU), wypełnione początkowo wartościami \texttt{False}. Następnie, w \texttt{(b-a)/1000+1} blokach po \texttt{1024} wątki, wywoływana jest funkcja \texttt{kernel} (oznaczona słowem kluczowym \texttt{\_\_global\_\_}). Pojedynczy kernel sprawdza, czy dana liczba (identyfikowana numerem bloku i wątku) jest liczbą pierwszą i wstawia odpowiednio \texttt{True} lub \texttt{False} w odpowiednim elemencie wektora \texttt{device\_vector} (kopia na GPU). Po zakończeniu wszystkich obliczeń na GPU następuje przekopiowanie wartości tego wektora do wektora \texttt{host\_vector}. Następnie, iterując po jego elementach, kolejne liczby pierwsze dodawane są do listy. Lista ta zwracana jest jako wynik funkcji \texttt{cuda\_wrapper}, a jej rozmiar odpowiada poszukiwanej wielkości zbioru liczb pierwszych w przedziale.
+
 \subsection{Kompilacja programu}
-Przed kompilacją należy zainstalować system budowania \textbf{CMake} w wersji minimum 3.5. Następnie należy ustalić docelową ilość wątków maszyny, na której będzie uruchamiany nasz program. Parametr \textbf{\texttt{NUM\_THREADS}} ustawia się w pliku \textbf{\texttt{CMakeLists.txt}}. Następnie możemy przystąpić do kompilacji naszego programu skryptem powłoki \textbf{\texttt{build.sh}}. Wyjściowy plik wykonywalny to \textbf{\texttt{prime\_finder}}.
+Przed kompilacją należy zainstalować system budowania \textbf{CMake} w wersji minimum 3.5. Następnie należy ustalić docelową ilość wątków maszyny, na której będzie uruchamiany nasz program. Parametr \textbf{\texttt{NUM\_THREADS}} ustawia się w pliku \textbf{\texttt{CMakeLists.txt}}. Następnie możemy przystąpić do kompilacji naszego programu skryptem powłoki \textbf{\texttt{build.sh}}. Warianty programu wykonywane wyłącznie na CPU kompilowane są z użyciem \textbf{gcc}, natomiast wersja CUDA wymaga innego kompilatora: \textbf{nvcc}. Wyjściowy plik wykonywalny to \textbf{\texttt{prime\_finder}}.
 
 \subsection{Uruchomienie programu}
 Plik wykonywalny \textbf{\texttt{prime\_finder}} przyjmuje jako parametry początek i koniec przedziału poszukiwań liczb pierwszych. Składnia jest następująca: \textbf{\texttt{prime\_finder a b}}. Jeżeli chcemy szukać liczb pierwszych począwszy od 1000 do 10000000, należy wykonać \textbf{\texttt{prime\_finder 1000 10000000}}. Program zwróci nam ilość znalezionych liczb pierwszych i czas wykonania dla każdej z wyżej wymienionych technik zrównoleglenia.
 
 \section{Prezentacja rezultatów}
-Do testów użyto maszyny z czterordzeniowym procesorem Intel Xeon E5504. Procesor nie posiada technologii \textbf{Hyper-threading}. Oznacza, to ilość wątków logicznych widzianych przez system operacyjny odpowiada ilości fizycznych rdzeni procesora. Program został zatem skompilowany z flagą \textbf{\texttt{-DNUM\_THREADS=4}}.
+
+\subsection{Etap 1}
+
+Do testów w pierwszym etapie projektu użyto maszyny z czterordzeniowym procesorem Intel Xeon E5504. Procesor nie posiada technologii \textbf{Hyper-threading}. Oznacza, to ilość wątków logicznych widzianych przez system operacyjny odpowiada ilości fizycznych rdzeni procesora. Program został zatem skompilowany z flagą \textbf{\texttt{-DNUM\_THREADS=4}}.
 
 Rezultaty możemy przedstawić na przykładzie uruchomienia: \textbf{\texttt{prime\_finder 1 100000000}}. Poniżej znajduje się wydruk ze standardowego wyjścia:
 
 \begin{boxedverbatim}
-mwaszak@livewire:~/prime_finder$ ./prime_finder 1 100000000
+mwaszak@livewire:~/prime_finder ./prime_finder 1 100000000
 Threads number set to 4.
 [Single] Primes found: 5761455
 [POSIX]  Primes found: 5761455
@@ -113,8 +131,31 @@ C++11:  40.005 s
 OpenMP: 40.079 s
 \end{boxedverbatim}
 
+\subsection{Etap 2}
+
+Testy w drugim etapie projektu przeprowadzano na innej maszynie, z procesorem \textit{Intel Core i7-6700HQ} (realizującym Hyper-threading: 4 rdzenie, 8 wątków), wyposażonej w kartę graficzną NVIDIA GeForce GTX 960M. Ustawiono flagę \textbf{\texttt{-DNUM\_THREADS=8}}.
+
+\begin{boxedverbatim}
+root@arcz:~/prime_finder ./prime_finder 1 100000000
+CPU threads number set to 8.
+[Single] Primes found: 5761455
+[POSIX]  Primes found: 5761455
+[C++11]  Primes found: 5761455
+[OpenMP] Primes found: 5761455
+[MPI]    Primes found: 5761455
+[CUDA]   Primes found: 5761455
+
+Times elapsed:
+Single:	32.421 s
+POSIX:	6.803 s
+C++11:	6.892 s
+OpenMP:	6.527 s
+MPI:	7.780 s
+CUDA:	15.807 s
+\end{boxedverbatim}
+
 \subsection{Analiza rezultatów}
-Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wazriantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdahla \cite{c4}:
+Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wariantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdahla \cite{c4}:
 \begin{equation}
 S(n,p)=\frac{T(n,p)}{T(1,p)}=\frac{1}{\beta(n,1)+\frac{1-\beta(n,1)}{p}}
 \end{equation}
