@@ -75,11 +75,11 @@ int main(int argc, char** argv) {
 
 	printf("\nTimes elapsed:\n");
 	printf("Single:\t%.3lf s\n", time_single / 1000);
-	printf("POSIX:\t%.3lf s\n", time_posix / 1000);
-	printf("C++11:\t%.3lf s\n", time_cpp11 / 1000);
-	printf("OpenMP:\t%.3lf s\n", time_omp / 1000);
-	printf("MPI:\t%.3lf s\n", time_mpi / 1000);
-	printf("CUDA:\t%.3lf s\n", time_cuda / 1000);
+	printf("POSIX:\t%.3lf s (speedup: %.2lf)\n", time_posix / 1000, time_single / time_posix);
+	printf("C++11:\t%.3lf s (speedup: %.2lf)\n", time_cpp11 / 1000, time_single / time_cpp11);
+	printf("OpenMP:\t%.3lf s (speedup: %.2lf)\n", time_omp / 1000, time_single / time_omp);
+	printf("MPI:\t%.3lf s (speedup: %.2lf)\n", time_mpi / 1000, time_single / time_mpi);
+	printf("CUDA:\t%.3lf s (speedup: %.2lf)\n", time_cuda / 1000, time_single / time_cuda);
 
 	return 0;
 }
