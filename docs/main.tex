@@ -94,7 +94,11 @@ Klasa ta wykorzystuje mechanizm wielowątkowości opisany w ramach standardu \te
 Klasa ta wykorzystuje mechanizm wielowątkowości otwartego projektu \textbf{OpenMP}. Jest to zestaw dyrektyw kompilatora. Definicja jest zawarta w standardowym nagłówku \textbf{\texttt{omp.h}}, natomiast flaga przekazana kompilatorowi to \textbf{\texttt{-fopenmp}}. Implementacja zrównoleglania odróżnia się od tej przedstawionej w dwóch poprzednich klasach. Metoda \textbf{\texttt{Find()}} nie używa tutaj statycznej metody \textbf{\texttt{Worker()}}. Zamiast tego bezpośrednio używa dyrektywę preprocesora \textbf{\texttt{\#pragma omp parallel}}. Mechanizm ten jest dużo szybszy w implementacji, a zatem wygodniejszy dla programisty.
 
 \subsection{Klasa \textbf{\texttt{PrimeMpi}}}
-Tu trzeba wpisać o MPI.
+W tej klasie wykorzystana została biblioteka wspierającą MPI (Message Passing Interface), czyli protokół komunikacyjny do przesyłania komunikatów pomiędzy procesami programów równoległych działającymi na jednym lub więcej komputerach.  Biblioteka udostępnia narzędzie \textbf{\texttt{mpirun}} służące do uruchomienia programu, a poprzez podanie parametru \textbf{\texttt{-np}} ustawienie ile procesów ma zostać uruchomionych. Z powodu wykorzystania MPI klasa musiała zostać zaimplementowany jako niezależny program. Podczas inicjalizacji programu tworzony jest kanał komunikacyjny. Każdy z procesów dosataje indywidualny numer \textbf{\texttt{word\_rank}}, służący do indentyfikacji podczas komunikacji, oraz do podziału zadań. Główna część programu dzieli się na dwie fazy.
+
+W pierwszej fazie procesy szukają liczb pierwszych. W celu uzyskania jak najlepszego czasu należało rozwiązać problem równomiernego obciążenia każdego z procesów. By unikniąć wysyłania wiadomości do procesów o tym jaki przedział mają przeszukiwać, wyznaczany jest on dynamicznie na podstawie indentyfikatora procesu nadanego przez MPI. Dziedzina została podzielona na $N^3$ tak samo licznych podzbiorów $Z_i$, gdzie $N$ oznacza liczbę procesów. Proces $N_i$ obsługuje zbiory $Z_i$, $Z_{2i}$, ..., $Z_{N^2i}$. Taka granulacja powoduje, że każdy z procesów bierze udział w sprawdzaniu dużych liczb. Znalezione liczby pierwsze zapisywane są w \textbf{\texttt{task\_primes}}.
+
+Druga faza następuje po sprawdzeniu wszystkich liczb i polega na przesłaniu wyników do głównego procesu. Za główny proces uznawany jest proces z indentyfikatorem o wartości $0$. Wysłanie wyników odbywa się za pomocą \textbf{MPI\_Send}. Główny proces przy pomocy \textbf{MPI\_Recv} odbiera wyniki od procesów i łączy je ze sobą. Po złączeniu wyników proces kończy pracę.      
 
 \subsection{Klasa \textbf{\texttt{PrimeCuda}}}
 Wersja zrealizowana w środowisku CUDA różni się nieco podejściem do zrównoleglania obliczeń. Typowa dla obliczeń na GPU jest bowiem \textbf{równoległość danych}, tj. realizacja tych samych obliczeń równocześnie na wielu niezależnych elementach danych.
@@ -171,7 +175,7 @@ S(n, p) = p
 \end{equation}
 co oznacza, że rośnie on proporcjonalnie do liczby procesorów wykorzystanych do rozwiązania zadania. Na tej podstawie możemy wywnioskować, że w naszym rozwiązaniu część sekwencyjna jest pomijalnie mała w porównaniu do części równoległej.
 
-Ponadto w zaprezentowanym rozwiązaniu nie ma wielkich różnic między zbadanymi metodami zrównoleglania, żadna metoda nie wyróżnia się zwiększonym narzutem czasowym, wszystkie są równie dobre. Testowanie przeprowadzane było wielokrotnie na różnych przedziałach i powyższe relacje czasowe były zawsze zachowane.
+Ponadto w zaprezentowanym rozwiązaniu nie ma wielkich różnic między zbadanymi metodami zrównoleglania, żadna metoda nie wyróżnia się zwiększonym narzutem czasowym, wszystkie są równie dobre. Warto dodać, że zastosowane dzielenie zbioru dla MPI sprawdza się, procesy są niemal równomiernie obciążone. Testowanie przeprowadzane było wielokrotnie na różnych przedziałach i powyższe relacje czasowe były zawsze zachowane.
 
 \printbibliography
 
