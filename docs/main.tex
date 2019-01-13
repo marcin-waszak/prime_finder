@@ -46,7 +46,7 @@
 \maketitle
 
 \begin{abstract}
-Celem sprawozdania jest przedstawienie przykładowych sposobów implementacji zrównoleglonego algorytmu wyszukiwania liczb pierwszych w zadanym przedziale. Zaprezentowane zostaną kolejno: wersja jednowątkowa, POSIX threads, C++11 threads oraz OpenMP, a w dalszej części także OpenMPI oraz CUDA. W ostatnim rozdziale znajduje się prezentacja rezultatów i wnioski. 
+Celem sprawozdania jest przedstawienie przykładowych sposobów implementacji zrównoleglonego algorytmu wyszukiwania liczb pierwszych w zadanym przedziale. Zaprezentowane zostaną kolejno: wersja jednowątkowa, POSIX threads, C++11 threads oraz OpenMP, a w dalszej części także MPI oraz CUDA. W ostatnim rozdziale znajduje się prezentacja rezultatów i wnioski. 
 \end{abstract}
 
 \section{Zadanie}
@@ -61,12 +61,12 @@ Zadanie zostało wykonane w języku C++, ponieważ wspiera on programowanie obie
 \item POSIX threads,
 \item C++11 threads,
 \item OpenMP,
-\item OpenMPI,
+\item MPI,
 \item CUDA.
 \end{itemize}
 \end{multicols}
 
-Wymienione warianty zostały zaimplementowane jako oddzielne klasy. Wersja jednowątkowa stanowi klasę bazową o nazwie \textbf{\texttt{Prime}}. Po klasie tej dziedziczą klasy \textbf{\texttt{PrimePosix}}, \textbf{\texttt{PrimeCpp11}}, \textbf{\texttt{PrimeOmp}}, \textbf{\texttt{PrimeMpi}} oraz \textbf{\texttt{PrimeCuda}} które implementują odpowiednio warianty POSIX threads, C++11 threads, OpenMP, OpenMPI oraz CUDA.
+Wymienione warianty zostały zaimplementowane jako oddzielne klasy. Wersja jednowątkowa stanowi klasę bazową o nazwie \textbf{\texttt{Prime}}. Po klasie tej dziedziczą klasy \textbf{\texttt{PrimePosix}}, \textbf{\texttt{PrimeCpp11}}, \textbf{\texttt{PrimeOmp}}, \textbf{\texttt{PrimeMpi}} oraz \textbf{\texttt{PrimeCuda}} które implementują odpowiednio warianty POSIX threads, C++11 threads, OpenMP, MPI oraz CUDA.
 
 Klasa bazowa \textbf{\texttt{Prime}} implementuje metody:
 \begin{itemize}
@@ -94,7 +94,7 @@ Klasa ta wykorzystuje mechanizm wielowątkowości opisany w ramach standardu \te
 Klasa ta wykorzystuje mechanizm wielowątkowości otwartego projektu \textbf{OpenMP}. Jest to zestaw dyrektyw kompilatora. Definicja jest zawarta w standardowym nagłówku \textbf{\texttt{omp.h}}, natomiast flaga przekazana kompilatorowi to \textbf{\texttt{-fopenmp}}. Implementacja zrównoleglania odróżnia się od tej przedstawionej w dwóch poprzednich klasach. Metoda \textbf{\texttt{Find()}} nie używa tutaj statycznej metody \textbf{\texttt{Worker()}}. Zamiast tego bezpośrednio używa dyrektywę preprocesora \textbf{\texttt{\#pragma omp parallel}}. Mechanizm ten jest dużo szybszy w implementacji, a zatem wygodniejszy dla programisty.
 
 \subsection{Klasa \textbf{\texttt{PrimeMpi}}}
-W tej klasie wykorzystana została biblioteka wspierającą MPI (Message Passing Interface), czyli protokół komunikacyjny do przesyłania komunikatów pomiędzy procesami programów równoległych działającymi na jednym lub więcej komputerach.  Biblioteka udostępnia narzędzie \textbf{\texttt{mpirun}} służące do uruchomienia programu, a poprzez podanie parametru \textbf{\texttt{-np}} ustawienie ile procesów ma zostać uruchomionych. Z powodu wykorzystania MPI klasa musiała zostać zaimplementowany jako niezależny program. Podczas inicjalizacji programu tworzony jest kanał komunikacyjny. Każdy z procesów dosataje indywidualny numer \textbf{\texttt{word\_rank}}, służący do indentyfikacji podczas komunikacji, oraz do podziału zadań. Główna część programu dzieli się na dwie fazy.
+W tej klasie wykorzystana została biblioteka wspierającą MPI (Message Passing Interface), czyli protokół komunikacyjny do przesyłania komunikatów pomiędzy procesami programów równoległych działającymi na jednym lub więcej komputerach.  Biblioteka udostępnia narzędzie \textbf{\texttt{mpirun}} służące do uruchomienia programu, a poprzez podanie parametru \textbf{\texttt{-np}} ustawienie ile procesów ma zostać uruchomionych. Z powodu wykorzystania MPI klasa musiała zostać zaimplementowana jako niezależny program. Podczas inicjalizacji programu tworzony jest kanał komunikacyjny. Każdy z procesów dostaje indywidualny numer \textbf{\texttt{word\_rank}}, służący do indentyfikacji podczas komunikacji, oraz do podziału zadań. Główna część programu dzieli się na dwie fazy.
 
 W pierwszej fazie procesy szukają liczb pierwszych. W celu uzyskania jak najlepszego czasu należało rozwiązać problem równomiernego obciążenia każdego z procesów. By unikniąć wysyłania wiadomości do procesów o tym jaki przedział mają przeszukiwać, wyznaczany jest on dynamicznie na podstawie indentyfikatora procesu nadanego przez MPI. Dziedzina została podzielona na $N^3$ tak samo licznych podzbiorów $Z_i$, gdzie $N$ oznacza liczbę procesów. Proces $N_i$ obsługuje zbiory $Z_i$, $Z_{2i}$, ..., $Z_{N^2i}$. Taka granulacja powoduje, że każdy z procesów bierze udział w sprawdzaniu dużych liczb. Znalezione liczby pierwsze zapisywane są w \textbf{\texttt{task\_primes}}.
 
@@ -136,7 +136,7 @@ OpenMP: 40.079 s
 \end{boxedverbatim}
 
 \subsection{Etap 2}
-Testy w drugim etapie przeprowadzono na tej samej maszynie Intel Xeon E5504. Dodatkowo zainstalowano kartę graficzną NVIDIA GeForce GTX 960.
+Testy w drugim etapie przeprowadzono na tej samej maszynie Intel Xeon E5504. Dodatkowo zainstalowano kartę graficzną NVIDIA GeForce GTX 960. Warto zauważyć krótsze czasy dla wersji CPU zrealizowanych w pierwszym etapie - poprawa nastąpiła po zmianie typu zmiennych liczbowych z 64 bitów na 32 bity.
 
 \begin{boxedverbatim}
 mwaszak@livewire:~/prime_finder$ ./prime_finder 1 100000000
@@ -158,7 +158,7 @@ CUDA:   15.807 s (speedup: 6.17)
 \end{boxedverbatim}
 
 \subsection{Analiza rezultatów}
-Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 dla wszystkich trzech wariantów równoległych w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdahla \cite{c4}:
+Każdy wariant zwrócił tę samą ilość liczb pierwszych, która jest zgodna z prawdą \cite{c3}. Jak widzimy, dla wariantów równoległych korzystających jedynie z CPU osiągnęto współczynnik przyspieszenia (\textit{ang. speed-up}) zadania rzędu 3,95 w porównaniu do wariantu jednowątkowego. Oznacza to, że zadanie zrównolegliło się niemal idealnie na wszystkich 4 rdzeniach procesora, co oznaczałoby osiągniecie przyspieszenia liniowego. Wartość współczynnika przyspieszenia można oszacowań wykorzystując prawo Amdahla \cite{c4}:
 \begin{equation}
 S(n,p)=\frac{T(n,p)}{T(1,p)}=\frac{1}{\beta(n,1)+\frac{1-\beta(n,1)}{p}}
 \end{equation}
@@ -176,6 +176,8 @@ S(n, p) = p
 co oznacza, że rośnie on proporcjonalnie do liczby procesorów wykorzystanych do rozwiązania zadania. Na tej podstawie możemy wywnioskować, że w naszym rozwiązaniu część sekwencyjna jest pomijalnie mała w porównaniu do części równoległej.
 
 Ponadto w zaprezentowanym rozwiązaniu nie ma wielkich różnic między zbadanymi metodami zrównoleglania, żadna metoda nie wyróżnia się zwiększonym narzutem czasowym, wszystkie są równie dobre. Warto dodać, że zastosowane dzielenie zbioru dla MPI sprawdza się, procesy są niemal równomiernie obciążone. Testowanie przeprowadzane było wielokrotnie na różnych przedziałach i powyższe relacje czasowe były zawsze zachowane.
+
+Najlepszy rezultat czasowy uzyskano korzystając z możliwości obliczeniowych GPU (przyspieszenie ponad sześciokrotne), jednak ciężko porównywać ten wynik z wynikami na CPU, gdyż zawdzięcza się go konkretnym parametrom sprzętowym. Prawdopodobnie uruchomienie programu na maszynie z lepszym procesorem pozwoliłoby osiągnąć podobne lub nawet lepsze rezultaty dla wersji CPU.
 
 \printbibliography
 
