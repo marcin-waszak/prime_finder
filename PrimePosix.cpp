@@ -33,7 +33,7 @@ void* PrimePosix::Worker(void* instance) {
 	std::list<number_t> numbers;
 
 	while(1) {
-		number_t n = thiz->current_.fetch_add(1);
+		number_t n = __sync_fetch_and_add(&thiz->current_, 1);
 
 		if (n > thiz->border_b_)
 			break;

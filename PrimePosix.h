@@ -4,7 +4,6 @@
 #include "Prime.h"
 
 #include <pthread.h>
-#include <atomic>
 
 class PrimePosix : public Prime {
 public:
@@ -14,7 +13,7 @@ public:
 private:
 	static void* Worker(void* instance);
 
-	std::atomic_uint current_;
+	number_t current_;
 	pthread_mutex_t mutex_;
 };
 
